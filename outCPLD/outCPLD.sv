@@ -5,17 +5,17 @@ module	outCPLD	(
 	output	logic	[1:8]	eoutP	=	8'b0,
 	output	logic	[1:28]	eout	=	28'b0);
 	
-enum	{	IDLE,
-			EXU_OFF,
-			WAIT,
-			EXU_ON
-		}	current_state,	next_state;	
 
-logic	[0:31]	cnt;	
-const	logic	[0:31] delay		=	10000000;
-logic	[1:8]	last_outP	=	8'b0;
-logic	[1:28]	last_out	=	28'b0;
-logic	[0:1]check;
+logic	[0:26]	cnt1;	
+logic	[0:26]	cnt2;
+logic	[0:26]	cnt3;
+logic	[0:26]	cnt4;
+logic	[0:26]	cnt5;
+logic	[0:26]	cnt6;
+logic	[0:26]	cnt7;
+logic	[0:26]	cnt8;
+const	logic	[0:26] delay		=	5000000;
+
 
 logic	[6:0]	g1	=	7'b0000000;
 logic	[6:0]	g2	=	7'b0000000;
@@ -26,44 +26,12 @@ logic	[6:0]	g6	=	7'b0000000;
 logic	[6:0]	g7	=	7'b0000000;
 logic	[6:0]	g8	=	7'b0000000;
 	
-always_ff	@(posedge	pclk_50M)
-	current_state	<=	next_state;
 
-always_comb	begin
-	next_state	=	IDLE;
-	
-	case	(current_state)
-	
-	IDLE:	
-	if	(!check)					next_state	=	EXU_OFF;
-	else							next_state	=	IDLE;
-
-	EXU_OFF:	
-	if	(!check)					next_state	=	EXU_OFF;	
-	else							next_state	=	WAIT;
-	
-	WAIT:	
-	if	(!check)					next_state	=	EXU_OFF;
-	else	if	(cnt	==	delay)	next_state	=	EXU_ON;
-	else							next_state	=	WAIT;
-	
-	
-	EXU_ON:
-	if	(!check)					next_state	=	EXU_OFF;	
-	else							next_state	=	IDLE;
-	
-	default:						next_state	=	IDLE;
-	endcase
-end
 
 always_ff	@(posedge	pclk_50M)	begin
-	if	(outP	>=	0)	
+	if	(outP	>=	0)
 	begin	
 
-	check	<=	(outP	==	last_outP)	&	(out	==	last_out);
-	last_outP	<=	outP;
-	last_out	<=	out;
-	
 	g1	=	{outP[8]	&	out[22],	outP[7]	&	out[16],	outP[6]	&	out[11],	outP[5]	&	out[7],		outP[4]	&	out[4],		outP[3]	&	out[2],		outP[2]	&	out[1]};
 	g2	=	{outP[8]	&	out[23],	outP[7]	&	out[17],	outP[6]	&	out[12],	outP[5]	&	out[8],		outP[4]	&	out[5],		outP[3]	&	out[3],		outP[1]	&	out[1]};
 	g3	=	{outP[8]	&	out[24],	outP[7]	&	out[18],	outP[6]	&	out[13],	outP[5]	&	out[9],		outP[4]	&	out[6],		outP[2]	&	out[3],		outP[1]	&	out[2]};
@@ -75,14 +43,11 @@ always_ff	@(posedge	pclk_50M)	begin
 
 	end
 	
-	case	(next_state)
-	
-	EXU_OFF:
+
 	begin
-	cnt	<=	0;
 	
-	if	(outP[1]	==	1'b0)	eoutP[1]	<=	(outP[1]	&	1'b1);
-	if	(outP[2]	==	1'b0)	eoutP[2]	<=	(outP[2]	&	1'b1);
+	if	(outP[1]	==	1'b0) eoutP[1]	<=	(outP[1]	&	1'b1);
+	if	(outP[2]	==	1'b0) eoutP[2]	<=	(outP[2]	&	1'b1);
 	if	(outP[3]	==	1'b0)	eoutP[3]	<=	(outP[3]	&	1'b1);
 	if	(outP[4]	==	1'b0)	eoutP[4]	<=	(outP[4]	&	1'b1);
 	if	(outP[5]	==	1'b0)	eoutP[5]	<=	(outP[5]	&	1'b1);
@@ -679,21 +644,54 @@ always_ff	@(posedge	pclk_50M)	begin
 
 	end
 	
-	WAIT:	cnt	<=	cnt	+	1;
+	begin
 	
-	EXU_ON:	
-	begin	if	(outP[1]	==	1'b1)	eoutP[1]	<=	(outP[1]	&	1'b1);
-	if	(outP[2]	==	1'b1)	eoutP[2]	<=	(outP[2]	&	1'b1);
-	if	(outP[3]	==	1'b1)	eoutP[3]	<=	(outP[3]	&	1'b1);
-	if	(outP[4]	==	1'b1)	eoutP[4]	<=	(outP[4]	&	1'b1);
-	if	(outP[5]	==	1'b1)	eoutP[5]	<=	(outP[5]	&	1'b1);
-	if	(outP[6]	==	1'b1)	eoutP[6]	<=	(outP[6]	&	1'b1);
-	if	(outP[7]	==	1'b1)	eoutP[7]	<=	(outP[7]	&	1'b1);
-	if	(outP[8]	==	1'b1)	eoutP[8]	<=	(outP[8]	&	1'b1);
+	
+	if(cnt1<delay) cnt1	<=	cnt1	+	1'b1;
+	else if(outP[1]	==	1'b1)	eoutP[1]	<=	(outP[1]	&	1'b1);
+
+	
+	if(cnt2<delay) cnt2	<=	cnt2	+	1'b1;
+	else if(outP[2]	==	1'b1)	eoutP[2]	<=	(outP[2]	&	1'b1);
+
+	
+	if(cnt3<delay) cnt3	<=	cnt3	+	1'b1;
+	else if(outP[3]	==	1'b1)	eoutP[3]	<=	(outP[3]	&	1'b1);
+
+	
+	if(cnt4<delay) cnt4	<=	cnt4	+	1'b1;
+	else if(outP[4]	==	1'b1)	eoutP[4]	<=	(outP[4]	&	1'b1);
+
+	if(cnt5<delay) cnt5	<=	cnt5	+	1'b1;
+	else if(outP[5]	==	1'b1)	eoutP[5]	<=	(outP[5]	&	1'b1);
+
+	
+	if(cnt6<delay) cnt6	<=	cnt6	+	1'b1;
+	else if(outP[6]	==	1'b1)	eoutP[6]	<=	(outP[6]	&	1'b1);
+
+	
+	if(cnt7<delay) cnt7	<=	cnt7	+	1'b1;
+	else if(outP[7]	==	1'b1)	eoutP[7]	<=	(outP[7]	&	1'b1);
+
+	
+	if(cnt8<delay) cnt8	<=	cnt8	+	1'b1;
+	else if(outP[8]	==	1'b1)	eoutP[8]	<=	(outP[8]	&	1'b1);
+
+	
 	end
 	
+	begin
+	if(outP[1]	==	1'b0)  cnt1	<= 0;
+	if(outP[2]	==	1'b0)  cnt2	<= 0;
+	if(outP[3]	==	1'b0)  cnt3	<= 0;
+	if(outP[4]	==	1'b0)  cnt4	<= 0;
+	if(outP[5]	==	1'b0)  cnt5	<= 0;
+	if(outP[6]	==	1'b0)  cnt6	<= 0;
+	if(outP[7]	==	1'b0)  cnt7	<= 0;
+	if(outP[8]	==	1'b0)  cnt8	<= 0;
 	
-	endcase	
+	end
+
 
 end
 	
